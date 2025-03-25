@@ -1,79 +1,100 @@
-class Banco {
-    constructor(nome, saldoInicial = 0) {
-        this.nome = nome;
-        this.saldo = saldoInicial;
-        this.transacoes = [];
+class Biblioteca {
+    constructor() {
+        this.livros = [];
+        this.membros = [];
     }
 
-    // Método 1: Depositar dinheiro
-    depositar(valor) {
-        this.saldo += valor;
-        this.transacoes.push({ tipo: 'Depósito', valor });
-        return this.saldo;
+    adicionarLivro(livro) {
+        this.livros.push(livro);
     }
 
-    // Método 2: Sacar dinheiro
-    sacar(valor) {
-        if (valor > this.saldo) {
-            throw new Error('Saldo insuficiente');
+    removerLivro(id) {
+        this.livros = this.livros.filter(livro => livro.id !== id);
+    }
+
+    buscarLivroPorId(id) {
+        return this.livros.find(livro => livro.id === id);
+    }
+
+    buscarLivroPorTitulo(titulo) {
+        return this.livros.filter(livro => livro.titulo.includes(titulo));
+    }
+
+    listarLivros() {
+        return this.livros;
+    }
+
+    adicionarMembro(membro) {
+        this.membros.push(membro);
+    }
+
+    removerMembro(id) {
+        this.membros = this.membros.filter(membro => membro.id !== id);
+    }
+
+    buscarMembroPorId(id) {
+        return this.membros.find(membro => membro.id === id);
+    }
+
+    listarMembros() {
+        return this.membros;
+    }
+
+    emprestarLivro(idLivro, idMembro) {
+        const livro = this.buscarLivroPorId(idLivro);
+        const membro = this.buscarMembroPorId(idMembro);
+        if (livro && membro && !livro.emprestado) {
+            livro.emprestado = true;
+            livro.idMembro = idMembro;
+            return true;
         }
-        this.saldo -= valor;
-        this.transacoes.push({ tipo: 'Saque', valor });
-        return this.saldo;
+        return false;
     }
 
-    // Método 3: Transferir dinheiro para outra conta
-    transferir(valor, contaDestino) {
-        this.sacar(valor);
-        contaDestino.depositar(valor);
-        this.transacoes.push({ tipo: 'Transferência', valor, destino: contaDestino.nome });
-    }
-
-    // Método 4: Obter saldo atual
-    obterSaldo() {
-        return this.saldo;
-    }
-
-    // Método 5: Obter histórico de transações
-    obterHistorico() {
-        return this.transacoes;
-    }
-
-    // Método 6: Definir limite de saque
-    definirLimiteDeSaque(valorLimite) {
-        this.limiteDeSaque = valorLimite;
-    }
-
-    // Método 7: Verificar se saque está dentro do limite
-    verificarLimiteDeSaque(valor) {
-        if (valor > this.limiteDeSaque) {
-            throw new Error('Saque acima do limite permitido');
+    devolverLivro(idLivro) {
+        const livro = this.buscarLivroPorId(idLivro);
+        if (livro && livro.emprestado) {
+            livro.emprestado = false;
+            delete livro.idMembro;
+            return true;
         }
-        return true;
+        return false;
     }
 
-    // Método 8: Aplicar juros ao saldo
-    aplicarJuros(taxa) {
-        const juros = this.saldo * (taxa / 100);
-        this.saldo += juros;
-        this.transacoes.push({ tipo: 'Juros', valor: juros });
-        return this.saldo;
+    listarLivrosEmprestados() {
+        return this.livros.filter(livro => livro.emprestado);
     }
 
-    // Método 9: Pagar uma conta
-    pagarConta(valor, descricao) {
-        this.sacar(valor);
-        this.transacoes.push({ tipo: 'Pagamento', valor, descricao });
-        return this.saldo;
+    listarLivrosDisponiveis() {
+        return this.livros.filter(livro => !livro.emprestado);
     }
 
-    // Método 10: Obter o total depositado
-    obterTotalDepositado() {
-        return this.saldo + this.transacoes
-            .filter(transacao => transacao.tipo === 'Depósito')
-            .reduce((total, transacao) => total + transacao.valor, 0);
+    contarLivros() {
+        return this.livros.length;
+    }
+
+    contarMembros() {
+        return this.membros.length;
+    }
+
+    listarLivrosPorAutor(autor) {
+        return this.livros.filter(livro => livro.autor.includes(autor));
+    }
+
+    listarLivrosPorGenero(genero) {
+        return this.livros.filter(livro => livro.genero.includes(genero));
+    }
+
+    atualizarInformacaoLivro(id, novosDados) {
+        const livro = this.buscarLivroPorId(id);
+        if (livro) {
+            Object.assign(livro, novosDados);
+        }
+    }
+
+    listarLivrosPorAno(ano) {
+        return this.livros.filter(livro => livro.ano === ano);
     }
 }
 
-// Exportando a classe para ser usada em outros arquivos ou em testes
-module.exports = Banco;
+module.exports = Biblioteca;
